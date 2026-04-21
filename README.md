@@ -9,7 +9,7 @@
 
 --->
 
-- [First Container (Pod) on ROSA](deploywiths2i.md)
+- [First Container (Pod) on ROSA](doc/deploywiths2i.md)
 - [Basic ROSA Topology](openshifttopology.md)
 - [Basic ROSA Observability](monitor.md)
 - [Auto Scale Container with HPA](scale.md)
