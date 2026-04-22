@@ -1,274 +1,196 @@
-# OOTB Application Monitoring, Alert & User workload monitoring
+# Basic ROSA Observability
 <!-- TOC -->
 
-- [OOTB Application Monitoring, Alert \& User workload monitoring](#ootb-application-monitoring-alert--user-workload-monitoring)
-  - [Prerequisite](#prerequisite)
+- [Basic ROSA Observability](#basic-rosa-observability)
   - [OpenShift Default Monitoring](#openshift-default-monitoring)
-  - [Review Application Performance Metric Code](#review-application-performance-metric-code)
-  - [Add Application Performance Metric to OpenShift](#add-application-performance-metric-to-openshift)
-  - [Add Alert to OpenShift](#add-alert-to-openshift)
-  - [Next Step](#next-step)
+  - [Set Resource Request/Limit and How to Compare Usage vs Resource Config](#set-resource-requestlimit-and-how-to-compare-usage-vs-resource-config)
+  - [OpenShift Default Logging](#openshift-default-logging)
+  - [Monitor Container Log with OpenShift Console](#monitor-container-log-with-openshift-console)
+  - [Back to Table of Content](#back-to-table-of-content)
 
 <!-- /TOC -->
-## Prerequisite
-- Complete [Deploy application to openshift with s2i](deploywiths2i.md)
-- Go to your project (same as your username)
-- Open Web Terminal by click '>_' on top of OpenShift Web Console
-- use web terminal to run command line
 
 ## OpenShift Default Monitoring
-- view defalt monitoring per deployment, click topology, click duke icon (backend deployment), in backend deployment, select observe tab
+
+- Back to Project: `<username>-lab1`
+
+  ![](../images/3/3-1.png)
+
+- view defalt monitoring per deployment, click topology, click duke icon (backend deployment), 
+
+- test call url 5-6 times, (or open url and refresh 5-6 times)
+
+  ![](../images/3/3-2.png)  
+
+- in backend deployment side panel,  select observe tab
+  
   - view CPU usage,
-  - view Memory usage
 
-  ![](images/mon_1.png)
+  ![](../images/3/3-3.png)    
 
-- view Project Monitoring, click Observe in left menu, select Dashboard Tab
+  - view Memory usage (scroll down to view)
+
+  ![](../images/3/3-4.png)  
+
+- Repeat to view observe with `nodejs` and `hello` deployment
+  
+  ![](../images/3/3-5.png)  
+
+- view Project Monitoring, click Observe in left menu, select Dashboard, select `Kubernetes/Compute Resources/Namespace(Pods)` in Dashboard dropdown list 
+  
 - this page will show Monitoring Information of current project (all resources in this project)
 
-  ![](images/mon_2.png)
+  ![](../images/3/3-6.png)  
 
-- can filter by workload, click at dashboard dropdownlist and select Kubernetes/Compute Resources/Workload, type deployment, workload backend  
+  ![](../images/3/3-7.png)  
 
-  ![](images/mon_3.png)
+- scroll down to view CPU Usage, Memory Usage and Other Monitoring Data
 
-- select tab Metrics to view performance/metrics information by type, click select query dropdown list to select default metrics information such as cpu usage, memory usage, filesystem usage, etc. 
+  ![](../images/3/3-8.png)  
 
-  ![](images/mon_4.png)
+- For view metrics by type, go to Observe and select Metrics in left menu, view performance/metrics information by type, 
 
-- select CPU usage, click check box 'Stacked'
+  ![](../images/3/3-9.png)  
 
-  ![](images/mon_5.png)  
+- click select query dropdown list to select default metrics information such as cpu usage, memory usage, filesystem usage, etc. 
+  
+  ![](../images/3/3-10.png)  
+  
+- select CPU usage, view cpu usage of all pod/deployment
 
-- change to another metrics such as memory usage.
+  ![](../images/3/3-11.png)
 
-  ![](images/mon_6.png) 
+- delete this query by click three dot icon and select `Delete query`
 
-- OpenShift Monitoring base on Prometheus Technology, you can use PromQL for retrive metric information, click add query
+  ![](../images/3/3-12.png)
 
-  ![](images/mon_61.png) 
+- change to another metrics such as memory usage., review memory usage of all pods.
 
-- select 'pod:container_cpu_usage:sum' and type 'enter' button to view this metrics from PromQL
+  ![](../images/3/3-13.png)
 
-  ![](images/mon_62.png) 
+- delete query again, try to manual input prometheus query by yourselft, type `pod` in query box and wait auto suggestion. select `pod:container_cpu_usage:sum`
 
-  ![](images/mon_63.png) 
+  ![](../images/3/3-14.png)
 
+- click `staked`
 
-- click Alerts tab to view all alert (the Alerting UI enables you to manage alerts, silences, and alerting rules, we will create alert in next step in this session)
+  ![](../images/3/3-15.png)
 
-  ![](images/mon_21.png)
+## Set Resource Request/Limit and How to Compare Usage vs Resource Config
 
-- click Events Tab to view All event in this project or filter by resource
+- Back to Topology view, select backend deployment
 
-  ![](images/mon_10.png) 
+  ![](../images/3/3-16.png)
 
-## Review Application Performance Metric Code
-Developer can enable monitoring for user-defined projects in addition to the default platform monitoring. You can now monitor your own projects in OpenShift Container Platform without the need for an additional monitoring solution. 
-- review application metric code
-  - backend application use quarkus microprofile metrics libraly to generate application metrics
-  - example code: https://raw.githubusercontent.com/chatapazar/openshift-workshop/main/src/main/java/org/acme/getting/started/BackendResource.java
-  - example custom metrics in code:
+- click actions menu, select edit resource limits
+
+  ![](../images/3/3-17.png)  
+
+- set cpu request : 50 millicores, limit : 100 millicores
+
+- set memory request : 256 MiB, limit : 512 MiB, click save
+
+  ![](../images/3/3-18.png)  
+
+- Wait until `backend` deployment restart complete!
+
+- Try to call URL of `backend` 5-6 times, 
+
+  ![](../images/3/3-19.png) 
+
+- back to Observe>Dashboards, select `Kubernetes/Compute Resources/Namespace(Pods)` again
+
+  ![](../images/3/3-20.png) 
+
+- scroll down to view cpu quota, view cpu usage, cpu request, cpu request%, cpu limit, cpu limit%
+
+  ![](../images/3/3-21.png) 
+
+- scroll down to view memory quota, view memory usage, memory request, memory request%, memory limit, memory limit%
+
+  ![](../images/3/3-22.png) 
+
+## OpenShift Default Logging
+
+- Example code with logging (backend application)
+
+  - Code URL: https://raw.githubusercontent.com/chatapazar/openshift-workshop/main/src/main/java/org/acme/getting/started/BackendResource.java
+
+  - Example Code Logging
 
     ```java
-    @Counted(
-        name = "countBackend", 
-        description = "Counts how many times the backend method has been invoked"
-        )
-    @Timed(
-        name = "timeBackend", 
-        description = "Times how long it takes to invoke the backend method in second", 
-        unit = MetricUnits.SECONDS
-        )
-    @ConcurrentGauge(
-        name = "concurrentBackend",
-        description = "Concurrent connection"
-        )
-    public Response callBackend(@Context HttpHeaders headers) throws IOException {
+    import org.jboss.logging.Logger;
+    ...
+    private static final Logger logger = Logger.getLogger(BackendResource.class);
+    ...
+     URL url;
+            try {
+                logger.info("Request to: " + backend);
+    ...
     ```
 
-- review example metrics of backend application, go to web terminal
-- call default quarkus microprofile metrics example
+- example log property (backend application)
 
-  ```bash
-  oc exec $(oc get pods -l app=backend | grep backend | head -n 1 | awk '{print $1}') \
-  -- curl -s  http://localhost:8080/q/metrics
+  - Properties URL: https://raw.githubusercontent.com/chatapazar/openshift-workshop/main/src/main/resources/application.properties
+
+  - Example properties:
+
+  ```prop
+  #Logging
+  quarkus.log.level=INFO
+  # quarkus.log.category."com.example.quarkus".level=INFO
+  # quarkus.log.category."com.example.quarkus.health".level=DEBUG
+  quarkus.log.console.enable=true
+  quarkus.log.console.format=%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n
+  quarkus.log.console.color=false
+  %dev.quarkus.log.console.color=true
   ```
 
-  example result
+## Monitor Container Log with OpenShift Console
 
-  ```bash
-  ...
-  # HELP vendor_memoryPool_usage_max_bytes Peak usage of the memory pool denoted by the 'name' tag
-  # TYPE vendor_memoryPool_usage_max_bytes gauge
-  vendor_memoryPool_usage_max_bytes{name="CodeHeap 'non-nmethods'"} 1352064.0
-  vendor_memoryPool_usage_max_bytes{name="CodeHeap 'non-profiled nmethods'"} 1018240.0
-  vendor_memoryPool_usage_max_bytes{name="CodeHeap 'profiled nmethods'"} 5218944.0
-  vendor_memoryPool_usage_max_bytes{name="Compressed Class Space"} 3856880.0
-  vendor_memoryPool_usage_max_bytes{name="Metaspace"} 3.1625864E7
-  vendor_memoryPool_usage_max_bytes{name="PS Eden Space"} 1.6777216E7
-  vendor_memoryPool_usage_max_bytes{name="PS Old Gen"} 1.8408896E7
-  vendor_memoryPool_usage_max_bytes{name="PS Survivor Space"} 5705344.0
-  ```
+- go to web terminal
 
-- call custom quarkus microprofile metrics example
-
-  ```bash
-  oc exec $(oc get pods -l app=backend | grep backend | head -n 1 | awk '{print $1}') \
-  -- curl -s  http://localhost:8080/q/metrics/application
-  ```
-
-  example result
-
-  ```bash
-  # TYPE application_org_acme_getting_started_BackendResource_timeBackend_seconds summary
-  application_org_acme_getting_started_BackendResource_timeBackend_seconds_count 1.0
-  # TYPE application_org_acme_getting_started_BackendResource_timeBackend_seconds_sum gauge
-  application_org_acme_getting_started_BackendResource_timeBackend_seconds_sum 2.503457774
-  application_org_acme_getting_started_BackendResource_timeBackend_seconds{quantile="0.5"} 2.503457774
-  application_org_acme_getting_started_BackendResource_timeBackend_seconds{quantile="0.75"} 2.503457774
-  application_org_acme_getting_started_BackendResource_timeBackend_seconds{quantile="0.95"} 2.503457774
-  application_org_acme_getting_started_BackendResource_timeBackend_seconds{quantile="0.98"} 2.503457774
-  application_org_acme_getting_started_BackendResource_timeBackend_seconds{quantile="0.99"} 2.503457774
-  application_org_acme_getting_started_BackendResource_timeBackend_seconds{quantile="0.999"} 2.503457774
-  ```
-
-## Add Application Performance Metric to OpenShift
-
-- create ServiceMonitor, go to Search in left menu, 
- 
-  ![](images/mon_11.png) 
-
-- in search page, in resources drop down, type 'servicemonitor' for filter, click 'SM ServiceMonitor' (`from monitoring.coreos.com/v1`)
-
-  ![](images/mon_12.png) 
-
-- Click Create ServiceMonitor button
-
-  ![](images/mon_13.png) 
-
-- in Create ServiceMonitor Page, input below YAML for create ServiceMonitor to backend application
-
-  ```yaml
-  apiVersion: monitoring.coreos.com/v1
-  kind: ServiceMonitor
-  metadata:
-    labels:
-      k8s-app: backend-monitor
-    name: backend-monitor
-  spec:
-    endpoints:
-    - interval: 30s
-      port: 8080-tcp
-      path: /q/metrics
-      scheme: http
-    - interval: 30s
-      port: 8080-tcp
-      path: /q/metrics/application
-      scheme: http
-    selector:
-      matchLabels:
-        app: backend  
-  ```
-
-  example: 
-
-  ![](images/mon_14.png)  
-
-- click create and review your ServiceMonitor, click YAML tab to view your yaml code. 
-
-  ![](images/mon_15.png) 
-
-- test call you backend application
-- go to web terminal. test call your backend 5-6 times
+- test call backend service
 
   ```bash
   BACKEND_URL=https://$(oc get route backend -o jsonpath='{.spec.host}')
   curl $BACKEND_URL/backend
   ```
 
-- click Observe in left menu, select Metrics Tab
+  ![](../images/3/3-24.png) 
 
-  ![](images/mon_161.png)         
+- view log in pod, go to Topology, click Duke icon (backend), in backend deployment select Resources Tab, click 'View logs' of Pod
 
-- in select query, change to custom query, type `app` and wait auto suggesstion (`if you don't found, wait 2-3 minutes for prometheus scrap your metrics`)
+  ![](../images/3/3-23.png) 
 
-  ![](images/mon_162.png)
+- in pod details, select Logs tab to view log of container 'backend'
 
-- Remark: if you don't found metrics 'application*' in auto suggession, wait a few minute and retry again
-- select from suggestion or type in query box with `application_org_acme_getting_started_BackendResource_countBackend_total`, type enter.
+  ![](../images/3/3-25.png) 
 
-  ![](images/mon_163.png) 
+- re call backend service and check log in pod append (retry call 2-3 times for view logs append)
 
-- change your custom PromQL such as average tocal call backend service in 1 minute is   
-  - type: `rate(application_org_acme_getting_started_BackendResource_countBackend_total[1m])`
-  - enter
-  
-  ![](images/mon_164.png) 
+    ```bash
+    BACKEND_URL=https://$(oc get route backend -o jsonpath='{.spec.host}')
+    curl $BACKEND_URL/backend
+    ```
 
-- Optional: test call backend 2-3 times and check metrics change in Monitoring Pages
+    check log append at log terminal
 
+  ![](../images/3/3-26.png) 
 
-## Add Alert to OpenShift
-- Check `PrometheusRule` 
- 
-  ```yaml
-  apiVersion: monitoring.coreos.com/v1
-  kind: PrometheusRule
-  metadata:
-    name: backend-app-alert
-    namespace: <username>
-    labels:
-      openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus
-  spec:
-    groups:
-    - name: backend
-      rules:
-      - alert: HighLatency
-        expr: application_org_acme_getting_started_BackendResource_timeBackend_max_seconds>0.5
-        labels:
-          severity: 'critical'
-        annotations:
-          message: '{{ $labels.instance }} response time is {{ $value }} sec'
-  ```
+- click raw icon to view log in another browser tab
 
-  HightLatency Alert will fire when response time is greateer than 1 sec  
+  ![](../images/3/3-27.png) 
 
+  ![](../images/3/3-28.png) 
 
-- Create backend-app-alert
-  click add icon (+) to open yaml editor
-  ![](images/alert_1.png) 
-  
-- input PrometheusRule yaml in editor and create (change `namespace!!!` before run)
-  ![](images/alert_2.png)
-  
-  
-- Test `HightLatency` , run k6 as pod on OpenShift
-  
-  ```bash
-  BACKEND_URL=https://$(oc get route backend -n user1 -o jsonpath='{.spec.host}')/backend
-  curl -o load-test-k6.js https://raw.githubusercontent.com/rhthsa/openshift-demo/main/manifests/load-test-k6.js
-  oc run load-test -n user1 -i \
-  --image=loadimpact/k6 --rm=true --restart=Never \
-  --  run -  < load-test-k6.js \
-  -e URL=$BACKEND_URL -e THREADS=25 -e DURATION=1m -e RAMPUP=30s -e RAMPDOWN=30s
-  ```
-  
-  - 25 threads
-  - Duration 1 minutes
-  - Ramp up 30 sec
-  - Ramp down 30 sec
-  
-  
+- click download to download currnet log
 
-  Check for alert in Developer Console by select Menu `Observe` then select `Alerts`
+   ![](../images/3/3-29.png) 
 
-  ![](images/mon_165.png)
+## Back to Table of Content
 
-
-
-## Next Step
-- [Viewing and working with logs generated by your application](logging.md)
+- [Red Hat OpenShift Service for AWS (ROSA) Workshop](../README.md)
 
 
 
