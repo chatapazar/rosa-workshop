@@ -1,67 +1,71 @@
-# Basic Serverless, auto scale up & scale down by request
+# OpenShift Serverless, auto scale up & down by event
 <!-- TOC -->
 
-- [Basic Serverless, auto scale up \& scale down by request](#basic-serverless-auto-scale-up--scale-down-by-request)
-  - [Prerequisite](#prerequisite)
-  - [Change your application to Serverless](#change-your-application-to-serverless)
-  - [Congratulation, You Complete This LAB!!!](#congratulation-you-complete-this-lab)
+- [OpenShift Serverless, auto scale up \& down by event](#openshift-serverless-auto-scale-up--down-by-event)
+  - [Serverless Deployment](#serverless-deployment)
+  - [Back to Table of Content](#back-to-table-of-content)
 
 <!-- /TOC -->
-## Prerequisite
-- Complete [Deploy application to openshift with s2i](deploywiths2i.md)
-- Go to your project (same as your username)
-- Open Web Terminal by click '>_' on top of OpenShift Web Console
-- use web terminal to run command line
 
-## Change your application to Serverless
-- From Topology view, open web terminal, delete route, service and deployment of backend
+## Serverless Deployment
 
-  ![](images/serverless_1.png)
+- From Topology view, go to top right, click plus icon, select Container images
 
-  with below command (change project name to your project name such as 'userx')
+  ![](../images/5/5-1.png)
 
-  ```bash
-  oc project user1
-  oc delete route/backend
-  oc delete service/backend
-  oc delete deployment/backend
-  ```
+- In Deploy Image, select Image stream tag from internal registry
 
-- redeploy application again with openshift serverless (serving) feature, click Add+ in left menu, select deploy from container images
+- select Project : `user1-lab1`
 
-  ![](images/serverless_2.png)
+- select Image Stream : `hello`
+  
+- select Tag : `latest`   
 
-- in image section, select Image stream tag from internal registry, select project `userx` (your username), image stream `backend` and Tag `latest`
-- in general section, set Application name: `backend`, Name: `backend`
-- in resources seciton, select `Serverless Deployment`
+- select project : `<username>-lab1`
 
-  ![](images/serverless_3.png)
+- set Runtime icon : `openshift` 
 
-- for advanced options, leave all default, click create
+  ![](../images/5/5-2.png)
 
-  ![](images/serverless_4.png)
+- In General section, set Create application
 
-- wait until deploy complete, click KSVC `backend`
+- set Application Name : `hello-serverless`
 
-  ![](images/serverless_5.png)
+- set Name : `hello-serverless`
+  
+- In Deploy, set Resource type : `Serverless Deployment`   
 
-- test backend application click route icon to open application in new tab
+  ![](../images/5/5-3.png)
 
-  ![](images/serverless_6.png)
+- Leave default in other section. click Create.
+
+  ![](../images/5/5-4.png)
+
+- wait until deploy complete, click KSVC `hello-serverless`
+
+  ![](../images/5/5-5.png)
+
+- test hello-serverless application click route icon to open application in new tab
+  
+  ![](../images/5/5-6.png)
 
 - wait until application auto scale down (1 minute)
 
-  ![](images/serverless_7.png)
+  ![](../images/5/5-7.png)
 
-- in topology view, no pod start and deployment show 0 pod
+- in topology view, no pod start and deployment show 0 pod 
 
-  ![](images/serverless_8.png)
+  ![](../images/5/5-8.png)
 
 - test call application again by click route, serverless will automatic start pod.
 
-  ![](images/serverless_9.png)
+  ![](../images/5/5-9.png)
 
-## Congratulation, You Complete This LAB!!!
+  ![](../images/5/5-10.png)
+
+## Back to Table of Content
+
+- [Red Hat OpenShift Service for AWS (ROSA) Workshop](../README.md)
 
 
 

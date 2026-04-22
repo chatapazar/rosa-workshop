@@ -8,3 +8,6 @@
 - Web Terminal
 - deploy test from https://github.com/chatapazar/openshift-workshop/tree/main/sample
 - sclae 5
+- openshift pipelines
+
+## Scale OpenShift Console before start lab
