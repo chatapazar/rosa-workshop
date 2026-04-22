@@ -11,3 +11,12 @@
 - openshift pipelines
 
 ## Scale OpenShift Console before start lab
+
+- edit Console object, name: Cluster in openshift-console-operator namespace
+
+```yaml
+spec:
+  managementState: Unmanaged
+```
+
+- in openshift-console namespace, edit console deployment, remove nodeselector, scale replica > 3, set cpu/memory
